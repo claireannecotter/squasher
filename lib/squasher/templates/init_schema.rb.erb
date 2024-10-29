@@ -1,7 +1,10 @@
 class InitSchema < ActiveRecord::Migration<%= @config.migration_version %>
   def up
-    return init_schema if strong_migrations_missing?
-    safety_assured { init_schema }
+    <%- if defined?(StrongMigrations).present? -%> 
+    <%= "    safety_assured { init_schema }" -%>
+    <%- else -%>
+    <%= "    init_schema" -%>
+    <%- end -%>
   end
 
   def down
@@ -9,11 +12,7 @@ class InitSchema < ActiveRecord::Migration<%= @config.migration_version %>
   end
 
   private
-    def strong_migrations_missing?
-      gem_dependency = Gem::Dependency.new(StrongMigrations)
-      gem_dependency.matching_specs.first.present?
-    end
-
+    
     def init_schema
       <%- each_schema_line do |line| -%>
       <%- next if line.strip.empty?  -%>
